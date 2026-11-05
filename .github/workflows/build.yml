@@ -163,6 +163,18 @@ jobs:
           done
           exit 1
 
+      # Packaging strips the bundled binaries' signatures with the Windows SDK's signtool, which Microsoft's build
+      # machines have on the path and GitHub's runners have installed but not on it
+      - name: Put the Windows SDK's signtool on the path
+        if: matrix.os == 'win32'
+        run: |
+          SDK_BIN="$(ls -d "/c/Program Files (x86)/Windows Kits/10/bin/"10.*/x64 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$SDK_BIN" ] || [ ! -f "$SDK_BIN/signtool.exe" ]; then
+            echo "::error::The Windows SDK's signtool.exe was not found on this runner."
+            exit 1
+          fi
+          cygpath -w "$SDK_BIN" >> "$GITHUB_PATH"
+
       - name: Build the app
         run: |
           exec >> "$RUNNER_TEMP/build.log" 2>&1

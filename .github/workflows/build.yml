@@ -28,6 +28,10 @@ on:
         description: Commit, branch or tag of the source repository to build
         required: true
         default: main
+      publish_what_built:
+        description: Publish the platforms that built, even if one failed (the release says which it leaves out)
+        type: boolean
+        default: true
 
 # One build at a time. A commit that arrives during a build waits; a newer one replaces it in the queue, so the last
 # commit is always built and the ones in between are skipped.
@@ -241,6 +245,9 @@ jobs:
   publish:
     name: Publish the release
     needs: [version, build]
+    # A manual run can publish the platforms that built when another failed; an automatic run (after a merge) publishes
+    # only a complete release, so a later failure never takes a platform away from the latest release
+    if: ${{ !cancelled() && needs.version.result == 'success' && (needs.build.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.publish_what_built)) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -272,27 +279,15 @@ jobs:
           pattern: trussel-*
           merge-multiple: true
 
-      - name: Check the files and write SHA256SUMS
-        run: node source/build/trussel/release/releaseAssets.ts --version "$VERSION" --dir dist
+      - name: Check the files, write SHA256SUMS and the notes
+        env:
+          ALLOW_MISSING: ${{ needs.build.result != 'success' && '--allow-missing-platforms' || '' }}
+        run: |
+          BUILT="$(TZ=Asia/Kolkata date '+%-d %B %Y, %H:%M IST')"
+          node source/build/trussel/release/releaseAssets.ts --version "$VERSION" --dir dist $ALLOW_MISSING --notes notes.md --built "$BUILT"
 
       - name: Publish
         run: |
-          BUILT="$(TZ=Asia/Kolkata date '+%-d %B %Y, %H:%M IST')"
-          cat > notes.md <<EOF
-          Trussel IDE beta, built on ${BUILT}.
-
-          | Platform | Files |
-          |---|---|
-          | macOS | Apple silicon and Intel (\`.dmg\`) |
-          | Windows | x64 installer (\`.exe\`) and archive (\`.zip\`) |
-          | Linux | x64 \`.deb\`, \`.rpm\` and \`.tar.gz\` |
-
-          These builds are not signed by Apple or Microsoft yet. The first time you open Trussel:
-          - **macOS:** open the app, then System Settings › Privacy & Security › Open Anyway.
-          - **Windows:** if SmartScreen stops the installer, choose More info › Run anyway.
-
-          Check a download against \`SHA256SUMS\`.
-          EOF
           gh release create "v${VERSION}" dist/* \
             --repo "$GITHUB_REPOSITORY" \
             --title "Trussel ${VERSION}" \

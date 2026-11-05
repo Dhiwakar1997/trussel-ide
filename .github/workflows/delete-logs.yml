@@ -1,0 +1,26 @@
+# Deletes each build's log once the build finishes (trussel-frontend, front-end pass 109). The build already keeps its
+# output out of the log; this removes what is left (the steps' names and their order), so a public repository shows
+# only whether a build passed. The steps' pass or fail marks stay; a failed build's output is its sealed artifact.
+#
+# Mirrored from trussel-frontend's build/trussel/release/releases-repo/: edit it there, not here.
+
+name: Delete build logs
+
+on:
+  workflow_run:
+    workflows: [Build Trussel IDE]
+    types: [completed]
+
+permissions:
+  actions: write
+
+jobs:
+  delete:
+    name: Delete the build's log
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" --silent

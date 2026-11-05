@@ -1,0 +1,284 @@
+# Builds the Trussel IDE for macOS, Windows and Linux and publishes the installers as this repository's latest release,
+# which the IDE's landing page offers for download (trussel-frontend, front-end pass 109).
+#
+# This file is mirrored from trussel-frontend's build/trussel/release/releases-repo/ on every push there: edit it in
+# trussel-frontend, not here, or the next mirror overwrites the change.
+#
+# The source is private and stays private; this repository is public and holds only the installers and the landing
+# page. The build checks the source out with the secret TRUSSEL_SOURCE_TOKEN (a fine-grained token with read access to
+# trussel-frontend's contents). Runs on this repository's public runners cost no Actions minutes.
+#
+# Quiet logs: anyone can read a public repository's logs, so every step that runs the source's build writes its output
+# to a file, never to the log. When a build fails, that file is kept as an artifact sealed with the secret
+# TRUSSEL_BUILD_LOG_PASSWORD (build/trussel/release/buildLog.ts opens it), and "Delete build logs" removes each run's
+# log once it finishes.
+#
+# Started by trussel-frontend's "Trussel IDE release" workflow (repository_dispatch) for each commit to its main that
+# changes the IDE, or by hand: Actions > Build Trussel IDE > Run workflow.
+
+name: Build Trussel IDE
+
+on:
+  repository_dispatch:
+    types: [trussel-ide-build]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, branch or tag of the source repository to build
+        required: true
+        default: main
+
+# One build at a time. A commit that arrives during a build waits; a newer one replaces it in the queue, so the last
+# commit is always built and the ones in between are skipped.
+concurrency:
+  group: build-trussel-ide
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_REPOSITORY: ${{ github.event.client_payload.repository || 'Dhiwakar1997/trussel-frontend' }}
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.version.outputs.sha }}
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          ref: ${{ github.event.client_payload.sha || inputs.ref }}
+          token: ${{ secrets.TRUSSEL_SOURCE_TOKEN }}
+          sparse-checkout: |
+            /package.json
+            /.nvmrc
+            /build/trussel/release/
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Name the build
+        id: version
+        run: |
+          VERSION="$(node --input-type=module -e "import { releaseVersion } from './build/trussel/release/releaseAssets.ts'; import pkg from './package.json' with { type: 'json' }; console.log(releaseVersion(pkg.version, Number(process.argv[1])))" "${{ github.run_number }}")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Building Trussel $VERSION" >> "$GITHUB_STEP_SUMMARY"
+
+  build:
+    name: ${{ matrix.label }}
+    needs: version
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { label: macOS (Apple silicon), os: darwin, arch: arm64, runner: macos-15 }
+          # Intel Macs: built on Apple silicon for x64, as upstream VS Code does
+          - { label: macOS (Intel), os: darwin, arch: x64, runner: macos-15 }
+          - { label: Windows (x64), os: win32, arch: x64, runner: windows-2022 }
+          # 22.04, not the latest, so the app runs on older distributions too (glibc 2.35)
+          - { label: Linux (x64), os: linux, arch: x64, runner: ubuntu-22.04 }
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      VSCODE_ARCH: ${{ matrix.arch }}
+      npm_config_arch: ${{ matrix.arch }}
+      ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_OPTIONS: --max-old-space-size=8192
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Make room on the disk
+        if: matrix.os == 'linux'
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      - name: Check out the source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          ref: ${{ needs.version.outputs.sha }}
+          token: ${{ secrets.TRUSSEL_SOURCE_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      # Every step below writes its output to the build log file, never to this public log
+      - name: Install the Linux build tools
+        if: matrix.os == 'linux'
+        run: |
+          exec >> "$RUNNER_TEMP/build.log" 2>&1
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libxkbfile-dev libsecret-1-dev libkrb5-dev fakeroot rpm
+
+      - name: Install dependencies
+        run: |
+          exec >> "$RUNNER_TEMP/build.log" 2>&1
+          node build/npm/preinstall.ts
+          for attempt in 1 2 3; do
+            npm ci --no-audit --no-fund && exit 0
+            echo "npm ci failed (attempt $attempt of 3), retrying"
+            sleep 10
+          done
+          exit 1
+
+      - name: Build the app
+        run: |
+          exec >> "$RUNNER_TEMP/build.log" 2>&1
+          npm run gulp "vscode-${{ matrix.os }}-${{ matrix.arch }}-min"
+
+      - name: Package for macOS
+        if: matrix.os == 'darwin'
+        run: |
+          exec >> "$RUNNER_TEMP/build.log" 2>&1
+          mkdir -p dist
+          APP="$(cd .. && pwd)/VSCode-darwin-${VSCODE_ARCH}/Trussel.app"
+          # Not notarised yet: an ad-hoc signature, so Apple silicon runs the app once the person allows it
+          codesign --force --deep --sign - "$APP"
+          STAGE="$(mktemp -d)"
+          cp -R "$APP" "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          for attempt in 1 2 3; do
+            hdiutil create -volname Trussel -srcfolder "$STAGE" -ov -format UDZO "dist/Trussel-${VERSION}-darwin-${VSCODE_ARCH}.dmg" && break
+            echo "hdiutil failed (attempt $attempt of 3), retrying"
+            sleep 15
+          done
+          test -f "dist/Trussel-${VERSION}-darwin-${VSCODE_ARCH}.dmg"
+
+      - name: Package for Windows
+        if: matrix.os == 'win32'
+        run: |
+          exec >> "$RUNNER_TEMP/build.log" 2>&1
+          npm run gulp vscode-win32-x64-inno-updater
+          npm run gulp vscode-win32-x64-user-setup
+          mkdir -p dist
+          mv .build/win32-x64/user-setup/*.exe "dist/Trussel-${VERSION}-win32-x64.exe"
+          (cd ../VSCode-win32-x64 && 7z a -tzip "$GITHUB_WORKSPACE/dist/Trussel-${VERSION}-win32-x64.zip" .)
+
+      - name: Package for Linux
+        if: matrix.os == 'linux'
+        run: |
+          exec >> "$RUNNER_TEMP/build.log" 2>&1
+          # Each format stages a full copy of the app (1.6 GB with the language packs), so each is removed once packed
+          mkdir -p dist
+          npm run gulp vscode-linux-x64-prepare-deb
+          npm run gulp vscode-linux-x64-build-deb
+          mv .build/linux/deb/amd64/deb/*.deb "dist/Trussel-${VERSION}-linux-x64.deb"
+          rm -rf .build/linux/deb
+          npm run gulp vscode-linux-x64-prepare-rpm
+          npm run gulp vscode-linux-x64-build-rpm
+          mv .build/linux/rpm/x86_64/rpmbuild/RPMS/x86_64/*.rpm "dist/Trussel-${VERSION}-linux-x64.rpm"
+          rm -rf .build/linux/rpm
+          tar -czf "dist/Trussel-${VERSION}-linux-x64.tar.gz" -C .. --transform 's,^VSCode-linux-x64,Trussel-linux-x64,' VSCode-linux-x64
+
+      - name: Keep the installers for the release
+        uses: actions/upload-artifact@v4
+        with:
+          name: trussel-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/*
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+
+      - name: Seal the build log
+        if: failure()
+        env:
+          TRUSSEL_BUILD_LOG_PASSWORD: ${{ secrets.TRUSSEL_BUILD_LOG_PASSWORD }}
+        run: |
+          if [ -z "$TRUSSEL_BUILD_LOG_PASSWORD" ]; then
+            echo "::warning::The build failed. Its log is not kept, because the secret TRUSSEL_BUILD_LOG_PASSWORD is not set."
+          elif [ -f build/trussel/release/buildLog.ts ] && [ -f "$RUNNER_TEMP/build.log" ]; then
+            node build/trussel/release/buildLog.ts seal "$RUNNER_TEMP/build.log" "build-log-${{ matrix.os }}-${{ matrix.arch }}.sealed"
+            echo "::error::The build failed. Its log is the artifact build-log-${{ matrix.os }}-${{ matrix.arch }}, sealed: open it with node build/trussel/release/buildLog.ts open."
+          fi
+
+      - name: Keep the sealed build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.os }}-${{ matrix.arch }}
+          path: build-log-${{ matrix.os }}-${{ matrix.arch }}.sealed
+          retention-days: 14
+          if-no-files-found: ignore
+
+  publish:
+    name: Publish the release
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out the release scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          ref: ${{ needs.version.outputs.sha }}
+          token: ${{ secrets.TRUSSEL_SOURCE_TOKEN }}
+          sparse-checkout: |
+            /.nvmrc
+            /build/trussel/release/
+          sparse-checkout-cone-mode: false
+          path: source
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: source/.nvmrc
+
+      - name: Collect the installers
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: trussel-*
+          merge-multiple: true
+
+      - name: Check the files and write SHA256SUMS
+        run: node source/build/trussel/release/releaseAssets.ts --version "$VERSION" --dir dist
+
+      - name: Publish
+        run: |
+          BUILT="$(TZ=Asia/Kolkata date '+%-d %B %Y, %H:%M IST')"
+          cat > notes.md <<EOF
+          Trussel IDE beta, built on ${BUILT}.
+
+          | Platform | Files |
+          |---|---|
+          | macOS | Apple silicon and Intel (\`.dmg\`) |
+          | Windows | x64 installer (\`.exe\`) and archive (\`.zip\`) |
+          | Linux | x64 \`.deb\`, \`.rpm\` and \`.tar.gz\` |
+
+          These builds are not signed by Apple or Microsoft yet. The first time you open Trussel:
+          - **macOS:** open the app, then System Settings › Privacy & Security › Open Anyway.
+          - **Windows:** if SmartScreen stops the installer, choose More info › Run anyway.
+
+          Check a download against \`SHA256SUMS\`.
+          EOF
+          gh release create "v${VERSION}" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Trussel ${VERSION}" \
+            --notes-file notes.md \
+            --latest
+
+      - name: Keep the ten newest releases
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName,createdAt \
+            --jq 'sort_by(.createdAt) | reverse | .[10:] | .[].tagName' |
+          while read -r tag; do
+            gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
+          done

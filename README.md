@@ -7,7 +7,7 @@ before anyone writes it, and gives your coding agent that graph through its own 
 
 This repository holds the installers and the landing page only; the IDE's source is private. Every file is built by
 [the workflow in this repository](.github/workflows/build.yml) and published as a release; the newest ten are kept.
-The build keeps its output out of the public log, and each run's log is deleted when it finishes.
+The build keeps its output out of the public log, and each successful run's log is deleted when it finishes.
 
 ## Installing
 

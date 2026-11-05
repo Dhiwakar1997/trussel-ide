@@ -10,8 +10,9 @@
 #
 # Quiet logs: anyone can read a public repository's logs, so every step that runs the source's build writes its output
 # to a file, never to the log. When a build fails, that file is kept as an artifact sealed with the secret
-# TRUSSEL_BUILD_LOG_PASSWORD (build/trussel/release/buildLog.ts opens it), and "Delete build logs" removes each run's
-# log once it finishes.
+# TRUSSEL_BUILD_LOG_PASSWORD (build/trussel/release/buildLog.ts opens it), and "Delete build logs" removes each
+# successful run's log once it finishes. A failed run keeps its log, which holds no build output, so its cause can be
+# read.
 #
 # Started by trussel-frontend's "Trussel IDE release" workflow (repository_dispatch) for each commit to its main that
 # changes the IDE, or by hand: Actions > Build Trussel IDE > Run workflow.
@@ -48,11 +49,34 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       sha: ${{ steps.version.outputs.sha }}
     steps:
+      # Says in plain words what is wrong with the token or the ref, before git fails with an exit code
+      - name: Check access to the source
+        id: source
+        env:
+          GH_TOKEN: ${{ secrets.TRUSSEL_SOURCE_TOKEN }}
+          REF: ${{ github.event.client_payload.sha || inputs.ref }}
+        run: |
+          REF="$(echo "$REF" | xargs)"
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::The secret TRUSSEL_SOURCE_TOKEN is not set in this repository."
+            exit 1
+          fi
+          if ! gh api "repos/${SOURCE_REPOSITORY}" --silent; then
+            echo "::error::TRUSSEL_SOURCE_TOKEN cannot read ${SOURCE_REPOSITORY}. Give the token access to that repository, with Contents: Read-only, and check it has not expired."
+            exit 1
+          fi
+          if ! gh api "repos/${SOURCE_REPOSITORY}/commits/${REF}" --silent; then
+            echo "::error::${SOURCE_REPOSITORY} has no branch, tag or commit named \"${REF}\"."
+            exit 1
+          fi
+          echo "The token reads ${SOURCE_REPOSITORY}, and \"${REF}\" exists."
+          echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+
       - name: Check out the source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ env.SOURCE_REPOSITORY }}
-          ref: ${{ github.event.client_payload.sha || inputs.ref }}
+          ref: ${{ steps.source.outputs.ref }}
           token: ${{ secrets.TRUSSEL_SOURCE_TOKEN }}
           sparse-checkout: |
             /package.json

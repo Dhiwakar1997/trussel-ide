@@ -1,6 +1,6 @@
-# Deletes each build's log once the build finishes (trussel-frontend, front-end pass 109). The build already keeps its
-# output out of the log; this removes what is left (the steps' names and their order), so a public repository shows
-# only whether a build passed. The steps' pass or fail marks stay; a failed build's output is its sealed artifact.
+# Deletes each successful build's log once the build finishes (trussel-frontend, front-end pass 109). The build
+# already keeps its output out of the log; this removes what is left. A failed build keeps its log, which holds no
+# build output (that is its sealed artifact), so the failure's cause can be read: a token, a ref, a runner.
 #
 # Mirrored from trussel-frontend's build/trussel/release/releases-repo/: edit it there, not here.
 
@@ -17,6 +17,7 @@ permissions:
 jobs:
   delete:
     name: Delete the build's log
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Delete

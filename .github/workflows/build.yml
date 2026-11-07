@@ -12,7 +12,8 @@
 # to a file, never to the log. When a build fails, that file is kept as an artifact sealed with the secret
 # TRUSSEL_BUILD_LOG_PASSWORD (build/trussel/release/buildLog.ts opens it), and "Delete build logs" removes each
 # successful run's log once it finishes. A failed run keeps its log, which holds no build output, so its cause can be
-# read.
+# read. It also says why in one line that holds none of the output: the build tasks that errored and the kind of
+# failure (buildLog.ts reason), so a failure can be told apart, and fixed, without the password.
 #
 # Started by trussel-frontend's "Trussel IDE release" workflow (repository_dispatch) for each commit to its main that
 # changes the IDE, or by hand: Actions > Build Trussel IDE > Run workflow.
@@ -238,6 +239,13 @@ jobs:
         env:
           TRUSSEL_BUILD_LOG_PASSWORD: ${{ secrets.TRUSSEL_BUILD_LOG_PASSWORD }}
         run: |
+          # Why, in words that hold none of the log's text (an older source without `reason` prints nothing here)
+          if [ -f build/trussel/release/buildLog.ts ] && [ -f "$RUNNER_TEMP/build.log" ]; then
+            REASON="$(node build/trussel/release/buildLog.ts reason "$RUNNER_TEMP/build.log" 2>/dev/null | head -n 1 || true)"
+            if [ -n "$REASON" ]; then
+              echo "::error title=Why the build failed::$REASON"
+            fi
+          fi
           if [ -z "$TRUSSEL_BUILD_LOG_PASSWORD" ]; then
             echo "::warning::The build failed. Its log is not kept, because the secret TRUSSEL_BUILD_LOG_PASSWORD is not set."
           elif [ -f build/trussel/release/buildLog.ts ] && [ -f "$RUNNER_TEMP/build.log" ]; then

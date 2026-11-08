@@ -13,7 +13,7 @@ The build keeps its output out of the public log, and each successful run's log 
 
 | Platform | File | First open |
 |---|---|---|
-| macOS | `.dmg` (Apple silicon or Intel) | Drag Trussel to Applications, open it, then System Settings › Privacy & Security › **Open Anyway**. |
+| macOS | `.dmg` (Apple silicon or Intel) | Drag Trussel to Applications, then run `xattr -dr com.apple.quarantine /Applications/Trussel.app` in Terminal once (and again after installing a newer version). Or open it, then System Settings › Privacy & Security › **Open Anyway**. |
 | Windows | `.exe` installer, or `.zip` | If SmartScreen stops the installer, choose **More info** › **Run anyway**. |
 | Linux | `.deb` (Debian, Ubuntu), `.rpm` (Fedora, RHEL), or `.tar.gz` | `sudo apt install ./Trussel-…-linux-x64.deb`, or `sudo dnf install ./Trussel-…-linux-x64.rpm`. |
 

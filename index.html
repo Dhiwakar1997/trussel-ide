@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Trussel IDE</title>
+	<meta name="description" content="Trussel reads your whole code base into a graph, draws it as an architecture you can design on, and gives that graph to Eda, Claude Code and Codex. For macOS, Windows and Linux.">
+	<meta name="color-scheme" content="dark light">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="Trussel IDE: your code base, as a design">
+	<meta property="og:description" content="An editor that reads your whole code base as a graph, lets you design a change before it is written, and gives your agents that graph through its own MCP server.">
+	<meta property="og:image" content="./screens/themes/abyss.webp">
+	<meta name="twitter:card" content="summary_large_image">
+	<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+	<link rel="apple-touch-icon" href="./trussel-512.png">
+  <script type="module" crossorigin src="./assets/index-Yndt_vuk.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Dzu2og95.css">
+</head>
+<body>
+	<a class="skip" href="#main">Skip to content</a>
+
+	<header class="nav">
+		<div class="nav-inner">
+			<a class="brand" href="#top" aria-label="Trussel IDE, back to the top">
+				<img src="./favicon.svg" alt="" width="28" height="28">
+				<span>Trussel <span class="brand-sub">IDE</span></span>
+			</a>
+			<nav aria-label="Sections">
+				<ul class="nav-links">
+					<li><a href="#graph">The graph</a></li>
+					<li><a href="#eda">Eda</a></li>
+					<li><a href="#design">Design</a></li>
+					<li><a href="#mcp">MCP</a></li>
+				</ul>
+			</nav>
+			<a class="button button-primary button-small" href="#download">Download</a>
+		</div>
+	</header>
+
+	<main id="main">
+		<section class="hero" id="top" aria-labelledby="hero-title">
+			<div class="aurora" aria-hidden="true"></div>
+			<div class="wrap hero-inner">
+				<p class="eyebrow"><span class="pill">Beta</span> For macOS, Windows and Linux</p>
+				<h1 id="hero-title">Your code base, <span class="gradient-text">as a design.</span></h1>
+				<p class="lead">Trussel is an editor that reads your whole repository into a graph of its modules, classes and calls, lays it out as an architecture, and gives that graph to your agents. You decide the design. Eda, Claude Code and Codex build it.</p>
+				<div class="hero-actions" data-hero-download>
+					<a class="button button-primary button-large" href="#download">Download Trussel</a>
+					<p class="hero-note">macOS, Windows and Linux</p>
+				</div>
+			</div>
+
+			<!-- Eda's focus mode, drawn: one question answered as a flow across the lanes. src/motion/stage.ts plays it. -->
+			<div class="wrap">
+				<figure class="stage" data-stage aria-labelledby="stage-caption">
+					<div class="stage-bar">
+						<img src="./eda.svg" alt="" width="18" height="18">
+						<strong>Eda</strong>
+						<span>How does grading a card work?</span>
+						<span class="stage-count" data-stage-count>1 / 6</span>
+					</div>
+					<div class="stage-scroll">
+						<svg class="stage-svg" viewBox="0 0 1200 500" role="img" aria-label="A flash card app's review screen, and the six architecture lanes its code sits in: components, state, API, services and data. A tap on Good travels from GradeButton through reviewStore, submitReview and ReviewService to CardRepository and Firestore, ReviewService schedules the next review in the background, and the answer travels back until GradeBar turns into Next card.">
+							<defs>
+								<filter id="glow" x="-200%" y="-200%" width="500%" height="500%">
+									<feGaussianBlur stdDeviation="5" result="blur"/>
+									<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+								</filter>
+							</defs>
+
+							<g class="lanes">
+								<rect class="lane" x="24" y="60" width="180" height="420" rx="16"/>
+								<rect class="lane" x="220" y="60" width="176" height="420" rx="16"/>
+								<rect class="lane" x="412" y="60" width="160" height="420" rx="16"/>
+								<rect class="lane" x="588" y="60" width="160" height="420" rx="16"/>
+								<rect class="lane" x="764" y="60" width="196" height="420" rx="16"/>
+								<rect class="lane" x="976" y="60" width="200" height="420" rx="16"/>
+								<text class="lane-title" x="114" y="92">SCREEN</text>
+								<text class="lane-title" x="308" y="92">COMPONENTS</text>
+								<text class="lane-title" x="492" y="92">STATE</text>
+								<text class="lane-title" x="668" y="92">API</text>
+								<text class="lane-title" x="862" y="92">SERVICES</text>
+								<text class="lane-title" x="1076" y="92">DATA</text>
+								<text class="lane-sub" x="114" y="110">jolt-web</text>
+								<text class="lane-sub" x="308" y="110">jolt-web</text>
+								<text class="lane-sub" x="492" y="110">jolt-web</text>
+								<text class="lane-sub" x="668" y="110">jolt-web</text>
+								<text class="lane-sub" x="862" y="110">jolt</text>
+								<text class="lane-sub" x="1076" y="110">jolt</text>
+							</g>
+
+							<g class="edges">
+								<path id="e-tap" class="edge" d="M184 389 C 214 389, 206 200, 236 200"/>
+								<path id="e-grade" class="edge" d="M380 200 C 410 200, 400 310, 428 310"/>
+								<path id="e-api" class="edge" d="M556 310 L 604 310"/>
+								<path id="e-svc" class="edge" d="M732 310 L 780 310"/>
+								<path id="e-sched" class="edge edge-async" d="M862 330 L 862 380"/>
+								<path id="e-repo" class="edge" d="M944 310 L 992 310"/>
+								<path id="e-db" class="edge" d="M1076 330 L 1076 380"/>
+								<path id="e-bar" class="edge" d="M428 310 L 380 310"/>
+								<path id="e-screen" class="edge" d="M236 310 C 210 310, 212 300, 184 300"/>
+							</g>
+
+							<g class="phone">
+								<rect class="phone-body" x="44" y="128" width="140" height="300" rx="22"/>
+								<text class="phone-label" x="58" y="156">Review card</text>
+								<rect class="phone-card" x="56" y="172" width="116" height="120" rx="10"/>
+								<text class="phone-word" x="114" y="224">la manzana</text>
+								<text class="phone-meaning" x="114" y="250">the apple</text>
+								<text class="phone-meta" x="114" y="356">4 of 12</text>
+								<rect class="phone-button" data-stage-button x="56" y="372" width="116" height="34" rx="10"/>
+								<text class="phone-button-label" data-stage-button-label x="114" y="394">Good</text>
+								<circle class="tap-ring" data-stage-tap cx="114" cy="389" r="14"/>
+							</g>
+
+							<g class="cards">
+								<g class="card" data-node="GradeButton"><rect x="236" y="180" width="144" height="40" rx="10"/><text x="252" y="205">GradeButton</text></g>
+								<g class="card" data-node="GradeBar"><rect x="236" y="290" width="144" height="40" rx="10"/><text x="252" y="315">GradeBar</text></g>
+								<g class="card" data-node="reviewStore"><rect x="428" y="290" width="128" height="40" rx="10"/><text x="444" y="315">reviewStore</text></g>
+								<g class="card" data-node="submitReview"><rect x="604" y="290" width="128" height="40" rx="10"/><text x="620" y="315">submitReview</text></g>
+								<g class="card" data-node="ReviewService"><rect x="780" y="290" width="164" height="40" rx="10"/><text x="796" y="315">ReviewService</text></g>
+								<g class="card" data-node="SchedulingService"><rect x="780" y="380" width="164" height="40" rx="10"/><text x="796" y="405">SchedulingService</text></g>
+								<g class="card" data-node="CardRepository"><rect x="992" y="290" width="168" height="40" rx="10"/><text x="1008" y="315">CardRepository</text></g>
+								<g class="card card-outside" data-node="Firestore"><rect x="992" y="380" width="168" height="40" rx="10"/><text x="1008" y="405">Firestore</text><text class="card-tag" x="1148" y="405">database</text></g>
+							</g>
+
+							<g class="packets">
+								<circle class="packet packet-call" data-packet="call" r="6" cx="-20" cy="-20" filter="url(#glow)"/>
+								<circle class="packet packet-async" data-packet="async" r="6" cx="-20" cy="-20" filter="url(#glow)"/>
+								<circle class="packet packet-answer" data-packet="answer" r="6" cx="-20" cy="-20" filter="url(#glow)"/>
+							</g>
+						</svg>
+					</div>
+					<figcaption class="stage-caption" id="stage-caption">
+						<span class="stage-dot" aria-hidden="true"></span>
+						<span data-stage-caption>A tap on Good: GradeButton gets the grade.</span>
+					</figcaption>
+					<ul class="stage-key" aria-label="Key">
+						<li><i class="key-call"></i>Call</li>
+						<li><i class="key-answer"></i>Answer</li>
+						<li><i class="key-async"></i>Async</li>
+						<li><i class="key-miss"></i>Miss</li>
+					</ul>
+				</figure>
+			</div>
+		</section>
+
+		<section class="facts" aria-label="At a glance">
+			<ul class="wrap facts-list">
+				<li><strong>Runs on your computer</strong><span>Analysis is local. No account, no sign-in, no Trussel server.</span></li>
+				<li><strong>Python, Java, TypeScript, JavaScript and React</strong><span>Maven and Gradle projects, Node and React front ends.</span></li>
+				<li><strong>Your model, your key</strong><span>Anthropic or OpenAI, Ollama or LM Studio, or a small model on this computer.</span></li>
+				<li><strong>Built on VS Code</strong><span>The editor you know, its themes, and extensions from Open VSX.</span></li>
+			</ul>
+		</section>
+
+		<section class="feature" id="graph" aria-labelledby="graph-title">
+			<div class="wrap split">
+				<div class="split-text">
+					<p class="overline">The graph</p>
+					<h2 id="graph-title">The whole code base, as one graph</h2>
+					<p>Trussel reads your repository on your machine: every package, module, class, function and method, and how they contain, inherit, inject and call each other. The Visualiser page lays it out in lanes for the style it detects, whether layered, MVC, hexagonal, component-based, atomic design or feature-sliced, and you can filter it by role, scope it to a module, or open any node to see its purpose, its class hierarchy and where it sits.</p>
+				</div>
+				<figure class="shot">
+					<img src="./screens/graph-architecture.webp" width="1600" height="976" loading="lazy" alt="Trussel's Visualiser page in the Abyss theme: a Python API laid out as Layered, in the lanes Entry points, Services, Repositories and Models, each card a class with its file and state, with role chips across the top and the columns, modules and node states in the side bar.">
+					<figcaption>A Python API, detected as Layered: entry points, services, repositories and models, in the Abyss theme.</figcaption>
+				</figure>
+			</div>
+			<div class="wrap">
+				<h3 class="cards-title">What a graph gives you that a folder tree cannot</h3>
+				<ul class="cards">
+					<li class="card card-blue">
+						<h4>See the impact before the edit</h4>
+						<p>Trace any node upstream or downstream, up to five hops, and ask how two nodes connect and whether the path breaks the architecture's direction. Removing something shows every dependent, with file and line, before anything goes.</p>
+					</li>
+					<li class="card card-green">
+						<h4>Agents that look things up</h4>
+						<p>Instead of searching text, an agent asks the graph: the architecture in one call, a module's members, the nodes that already do what it was about to write.</p>
+					</li>
+					<li class="card card-purple">
+						<h4>Lanes that keep the shape</h4>
+						<p>Each node sits in its architecture lane. A call that runs the wrong way across the lanes is a flow violation, and agents are told not to add new ones.</p>
+					</li>
+					<li class="card card-orange">
+						<h4>Done means built</h4>
+						<p>Work planned in a pass is checked against the next analysis of the code, by the stamps the agent leaves, not by its word that it finished.</p>
+					</li>
+				</ul>
+			</div>
+			<div class="wrap">
+				<div class="views-head">
+					<h3 class="cards-title">A React front end, three ways in</h3>
+					<p class="muted">The component tree shows what is inside what. Data flow goes from the whole app to one value: <strong>Map</strong>, then <strong>Focus</strong> on a component, then <strong>Trace</strong> a value to where it is made and what changes it.</p>
+				</div>
+				<div class="views">
+					<figure class="shot view">
+						<img src="./screens/graph-map.webp" width="1600" height="976" loading="lazy" alt="The data flow Map of a React app in the Light theme: four modules, review, settings, stats and shared, each listing its state, components, hooks and network calls, with the flows between them bundled and labelled.">
+						<figcaption><b>Map</b> The whole app as modules, with the flows between them bundled and labelled.</figcaption>
+					</figure>
+					<figure class="shot view">
+						<img src="./screens/graph-focus.webp" width="1600" height="976" loading="lazy" alt="Data flow focused on AppShell in the Solarized Dark theme: useTheme comes in on the left, children go out to three pages on the right, with AppShell's props in and out in the middle.">
+						<figcaption><b>Focus</b> One component: what comes in, what goes out, and what is inside it.</figcaption>
+					</figure>
+					<figure class="shot view">
+						<img src="./screens/graph-tree.webp" width="1600" height="976" loading="lazy" alt="The component tree in the Monokai theme: the layout AppShell, then what is inside it, NavBar and the review, settings and stats pages, each card with its route.">
+						<figcaption><b>Component tree</b> Pages, then what is inside each, column by column.</figcaption>
+					</figure>
+				</div>
+			</div>
+		</section>
+
+		<!-- The same IDE in several themes. src/motion/themes.ts turns the list into tabs that rotate. -->
+		<section class="themes" id="themes" aria-labelledby="themes-title">
+			<div class="wrap">
+				<div class="section-head section-head-centre">
+					<p class="overline">Your theme</p>
+					<h2 id="themes-title">Every page follows the theme you pick</h2>
+					<p>The canvas, Eda and the design views take their colours from your editor's theme: VS Code's own, or any from Open VSX.</p>
+				</div>
+				<div class="theme-show" data-themes>
+					<div class="theme-tabs" role="tablist" aria-label="Themes" data-theme-tabs hidden></div>
+					<div class="theme-frames" data-theme-frames>
+						<figure class="theme-frame" data-theme-frame data-theme="Abyss" data-swatch="#000c18">
+							<img src="./screens/themes/abyss.webp" width="1600" height="976" loading="lazy" alt="The Trussel IDE in the Abyss theme: the Architecture canvas of a Python API beside the code of review_service.py.">
+							<figcaption>Abyss: the Architecture canvas beside the code it maps.</figcaption>
+						</figure>
+						<figure class="theme-frame" data-theme-frame data-theme="Light 2026" data-swatch="#ffffff">
+							<img src="./screens/themes/light-2026.webp" width="1600" height="976" loading="lazy" alt="The Trussel IDE in the Light 2026 theme: ReviewService's node detail, with its purpose, class hierarchy and a small map of its lane, beside its code.">
+							<figcaption>Light 2026: a node's purpose and place in the lanes, beside its code.</figcaption>
+						</figure>
+						<figure class="theme-frame" data-theme-frame data-theme="Monokai" data-swatch="#272822">
+							<img src="./screens/themes/monokai.webp" width="1600" height="976" loading="lazy" alt="The Trussel IDE in the Monokai theme: the Architecture canvas beside the code of review_service.py.">
+							<figcaption>Monokai: the canvas and the editor, in the theme you already use.</figcaption>
+						</figure>
+						<figure class="theme-frame" data-theme-frame data-theme="Solarized Dark" data-swatch="#002b36">
+							<img src="./screens/themes/solarized-dark.webp" width="1600" height="976" loading="lazy" alt="The Trussel IDE in the Solarized Dark theme: the Architecture canvas beside the code of review_service.py.">
+							<figcaption>Solarized Dark: every Trussel page takes the theme's colours.</figcaption>
+						</figure>
+						<figure class="theme-frame" data-theme-frame data-theme="Dark 2026" data-swatch="#1f1f1f">
+							<img src="./screens/themes/dark-2026.webp" width="1600" height="976" loading="lazy" alt="The Trussel IDE in the Dark 2026 theme: ReviewService's node detail beside its code.">
+							<figcaption>Dark 2026: the default dark theme.</figcaption>
+						</figure>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="feature feature-alt" id="eda" aria-labelledby="eda-title">
+			<div class="wrap split split-reverse">
+				<div class="split-text">
+					<p class="overline"><img class="eda-mark" src="./eda.svg" alt="" width="22" height="22"> Eda</p>
+					<h2 id="eda-title">An assistant that answers from the graph</h2>
+					<p>Eda sits in the chat beside Claude Code and Codex, and in a bar you open by tapping Ctrl twice. Ask where something is, who calls it or what depends on it, and Eda answers with Trussel's tools over the graph, showing each tool it used. It never guesses a name, a file or a caller.</p>
+					<ul class="checks">
+						<li><strong>Opens, finds, traces.</strong> Files, symbols, callers and dependencies, by name or by asking.</li>
+						<li><strong>Your choice of model.</strong> Your own Anthropic or OpenAI key, kept in the system's keychain, with calls straight to the provider. Or Ollama, LM Studio, or Qwen on this computer.</li>
+						<li><strong>Talk to it.</strong> Speech to text and back runs on your computer.</li>
+						<li><strong>Hands the building over.</strong> Eda reads and explains. "Ask Claude to…" puts your request in Claude Code's or Codex's box for you to send.</li>
+						<li><strong>A colleague.</strong> Eda treats you like a colleague, and expects the same: praise only when it's earned, its own mistakes owned, and a calm line drawn if the talk turns abusive.</li>
+					</ul>
+				</div>
+				<div class="chat" data-chat role="img" aria-label="An example of Eda's chat: asked who calls charge, Eda searches the graph, traces the callers, and names the two routes that call it.">
+					<div class="chat-head"><img src="./eda.svg" alt="" width="20" height="20"> Eda <span class="chat-model">Your key · Claude</span></div>
+					<p class="chat-ask" data-chat-step>Who calls PaymentService.charge?</p>
+					<ul class="chat-tools">
+						<li data-chat-step><code>search_nodes</code> PaymentService <span class="ok">done</span></li>
+						<li data-chat-step><code>trace</code> upstream, 2 hops <span class="ok">done</span></li>
+					</ul>
+					<p class="chat-answer" data-chat-step>Two routes call it: <code>checkout</code> in <code>routes/orders.py</code>, and <code>retry_payment</code> in <code>routes/billing.py</code>. Both go through <code>OrderService.place</code>.</p>
+					<p class="chat-foot">An example, not a recording.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="feature" id="flows" aria-labelledby="flows-title">
+			<div class="wrap split">
+				<div class="split-text">
+					<p class="overline">Explanations</p>
+					<h2 id="flows-title">Ask how it works. Watch it happen.</h2>
+					<p>Ask "how does checkout work?" in Eda's chat, Claude Code or Codex. The model writes the answer as a flow, who calls whom with what, and Trussel checks every step against the graph before anything plays. Then focus mode clears the window and plays it across the lanes, like the one at the top of this page, with a caption for each step.</p>
+					<ul class="checks">
+						<li><strong>Checked against your code.</strong> A step that names something the graph does not have is sent back, with the nodes it could have meant.</li>
+						<li><strong>Starts from the screen.</strong> A flow can begin with a tap on a design screen and show the states it causes.</li>
+						<li><strong>Saved and replayed.</strong> Saved flows replay with no model, and say so when the code has changed since.</li>
+						<li><strong>At your pace.</strong> Step, scrub, read all the steps as text, or click a card for its role and its code.</li>
+					</ul>
+				</div>
+				<figure class="shot" data-flows-shot>
+					<img src="./screens/eda-flow-grading.webp" width="1580" height="880" loading="lazy" alt="Eda's focus mode in the IDE: a flash card app's review screen, and the call it makes travelling through its components, store, API client, router, services and repositories, each in its lane.">
+					<figcaption>Focus mode in the IDE: the same question, played over the real code.</figcaption>
+				</figure>
+			</div>
+		</section>
+
+		<!-- Design, architecture, code: three scenes. src/motion/steps.ts plays them in turn; without it they are a list. -->
+		<section class="feature feature-alt" id="design" aria-labelledby="design-title">
+			<div class="wrap">
+				<div class="section-head">
+					<p class="overline">Design</p>
+					<h2 id="design-title">From a screen, to the architecture, to the code</h2>
+					<p>Design the change before anyone writes it: the screen people will use, then the parts of the system it needs, then let the agent build exactly that.</p>
+				</div>
+
+				<div class="steps" data-steps>
+					<div class="step-tabs" role="tablist" aria-label="Steps" data-step-tabs hidden>
+						<button class="step-tab" role="tab" type="button" id="step-tab-1" aria-controls="step-1" aria-selected="true"><span class="step-num">1</span>Design the screen<i class="step-progress"><b data-step-bar></b></i></button>
+						<button class="step-tab" role="tab" type="button" id="step-tab-2" aria-controls="step-2" aria-selected="false" tabindex="-1"><span class="step-num">2</span>Design the architecture<i class="step-progress"><b data-step-bar></b></i></button>
+						<button class="step-tab" role="tab" type="button" id="step-tab-3" aria-controls="step-3" aria-selected="false" tabindex="-1"><span class="step-num">3</span>Let the agent build it<i class="step-progress"><b data-step-bar></b></i></button>
+					</div>
+
+					<div class="scenes">
+						<article class="scene scene-design" id="step-1" role="tabpanel" aria-labelledby="step-1-title">
+							<div class="scene-text">
+								<span class="step-num" aria-hidden="true">1</span>
+								<h3 id="step-1-title">Design the screen</h3>
+								<p>Ask Claude Code or Codex for a screen, and it builds it with Trussel's design tools: components, states, interactions, and a frame for each device. The Design page shows it, the Prototype view clicks through it, and the agent checks its own work for overflow, overlap, clipped text and low contrast.</p>
+							</div>
+							<div class="scene-visual">
+								<div class="device">
+									<div class="device-top" data-build>Daily review <span>4 of 12</span></div>
+									<div class="device-card" data-build><strong>la manzana</strong><span>the apple</span></div>
+									<div class="device-grades" data-build><span>Again</span><span>Hard</span><span class="is-good">Good</span><span>Easy</span></div>
+									<div class="device-progress" data-build><i></i></div>
+								</div>
+								<ol class="tool-log">
+									<li data-log><code>build_screen</code><span>Review card</span></li>
+									<li data-log><code>set_state</code><span>graded</span></li>
+									<li data-log><code>set_interaction</code><span>Good → graded</span></li>
+									<li data-log class="tool-ok"><code>snapshot_screen</code><span>No overflow · contrast passes</span></li>
+								</ol>
+							</div>
+						</article>
+
+						<article class="scene scene-arch" id="step-2" role="tabpanel" aria-labelledby="step-2-title">
+							<div class="scene-text">
+								<span class="step-num" aria-hidden="true">2</span>
+								<h3 id="step-2-title">Design the architecture</h3>
+								<p>Start a pass and propose the nodes and connections the change needs, each with its purpose, in its lane on the Architecture canvas. Edit it in the pass editor until it is right, then mark it ready. In your own sandbox nobody has to approve it.</p>
+							</div>
+							<div class="scene-visual">
+								<div class="pass-chip" data-build><b>Pass</b> Grade a card <span>6 nodes</span></div>
+								<div class="mini-lanes">
+									<div class="mini-lane"><h4>Pages</h4><span class="mini-node" data-node-in>ReviewPage</span></div>
+									<div class="mini-lane"><h4>Components</h4><span class="mini-node" data-node-in>GradeBar</span></div>
+									<div class="mini-lane"><h4>State</h4><span class="mini-node" data-node-in>reviewStore</span></div>
+									<div class="mini-lane"><h4>Services</h4><span class="mini-node" data-node-in>ReviewService</span><span class="mini-node" data-node-in>SchedulingService</span></div>
+									<div class="mini-lane"><h4>Repositories</h4><span class="mini-node" data-node-in>CardRepository</span></div>
+								</div>
+								<p class="ready" data-build><code>design_ready</code> The pass is ready to build</p>
+							</div>
+						</article>
+
+						<article class="scene scene-code" id="step-3" role="tabpanel" aria-labelledby="step-3-title">
+							<div class="scene-text">
+								<span class="step-num" aria-hidden="true">3</span>
+								<h3 id="step-3-title">Let the agent build it</h3>
+								<p>The agent implements the pass from the design, touching only the pass's nodes, and leaves a stamp on each. The next analysis reads the stamps and marks each node implementing or implemented, so you see what was built, and what was not.</p>
+							</div>
+							<div class="scene-visual">
+								<pre class="code"><code><span class="code-line" data-line><span class="tok-comment"># trussel: T-7K2M9QX4PB</span></span>
+<span class="code-line" data-line><span class="tok-key">class</span> <span class="tok-type">ReviewService</span>:</span>
+<span class="code-line" data-line>    <span class="tok-key">def</span> <span class="tok-fn">grade</span>(self, card, grade):</span>
+<span class="code-line" data-line>        review = self.cards.<span class="tok-fn">save</span>(card, grade)</span>
+<span class="code-line" data-line>        self.scheduling.<span class="tok-fn">next</span>(review)</span>
+<span class="code-line" data-line>        <span class="tok-key">return</span> review</span></code></pre>
+								<ul class="built">
+									<li data-status><span>ReviewPage</span><em><b class="st-wip">implementing</b><b class="st-done">implemented</b></em></li>
+									<li data-status><span>GradeBar</span><em><b class="st-wip">implementing</b><b class="st-done">implemented</b></em></li>
+									<li data-status><span>reviewStore</span><em><b class="st-wip">implementing</b><b class="st-done">implemented</b></em></li>
+									<li data-status><span>ReviewService</span><em><b class="st-wip">implementing</b><b class="st-done">implemented</b></em></li>
+									<li data-status><span>SchedulingService</span><em><b class="st-wip">implementing</b><b class="st-done">implemented</b></em></li>
+									<li data-status><span>CardRepository</span><em><b class="st-wip">implementing</b><b class="st-done">implemented</b></em></li>
+								</ul>
+								<p class="ready" data-build><code>request_analysis</code> 6 of 6 built as designed</p>
+							</div>
+						</article>
+					</div>
+				</div>
+				<p class="coming"><span class="pill pill-muted">Coming next</span> Linking each screen to the nodes that build it, so a design becomes its architecture in one step.</p>
+			</div>
+		</section>
+
+		<section class="feature" id="mcp" aria-labelledby="mcp-title">
+			<div class="wrap split">
+				<div class="split-text">
+					<p class="overline">MCP</p>
+					<h2 id="mcp-title">One MCP server, for every agent</h2>
+					<p>The IDE runs its own MCP server on your computer. It answers only on <code>127.0.0.1</code>, and asks for a secret that changes each time Trussel starts. Claude Code and Codex started from Trussel's chat get it automatically, with nothing written to your <code>~/.claude</code>, <code>~/.codex</code> or repository. For an agent you start yourself, run <strong>Trussel: Copy MCP Configuration</strong> and paste it in.</p>
+					<p>Every agent that connects gets the same working rules: read the design before editing, keep it simple, change only what the pass covers, check the work against the design, keep the stamps, and never remove anything without your yes after a dry run.</p>
+				</div>
+				<div class="code-card">
+					<div class="code-head"><span>mcp.json</span><span class="muted">Copy MCP Configuration</span></div>
+<pre><code>{
+  "mcpServers": {
+    "trussel": {
+      "type": "http",
+      "url": "http://127.0.0.1:<span class="hl">&lt;port&gt;</span>/mcp",
+      "headers": {
+        "Authorization": "Bearer <span class="hl">&lt;this session's secret&gt;</span>"
+      }
+    }
+  }
+}</code></pre>
+				</div>
+			</div>
+			<div class="wrap">
+				<h3 class="cards-title">66 tools. Among them:</h3>
+				<ul class="tools">
+					<li class="tool-group tool-blue">
+						<h4>The graph</h4>
+						<p><code>get_architecture</code> <code>get_module</code> <code>search_nodes</code> <code>get_node</code> <code>get_neighbourhood</code> <code>trace</code> <code>explain_connection</code> <code>possible_duplicates</code></p>
+					</li>
+					<li class="tool-group tool-green">
+						<h4>Passes</h4>
+						<p><code>create_pass</code> <code>propose_node</code> <code>propose_edge</code> <code>update_design</code> <code>design_ready</code> <code>report_progress</code> <code>request_analysis</code></p>
+					</li>
+					<li class="tool-group tool-orange">
+						<h4>Design</h4>
+						<p><code>build_screen</code> <code>set_state</code> <code>set_interaction</code> <code>snapshot_screen</code> and 29 more</p>
+					</li>
+					<li class="tool-group tool-purple">
+						<h4>Flows</h4>
+						<p><code>explain_flow</code> <code>find_saved_flows</code> <code>play_saved_flow</code> <code>adjust_flow_view</code></p>
+					</li>
+					<li class="tool-group tool-teal">
+						<h4>The editor</h4>
+						<p><code>open_file</code> <code>open_symbol</code></p>
+					</li>
+				</ul>
+			</div>
+		</section>
+
+		<section class="download" id="download" aria-labelledby="download-title">
+			<div class="aurora aurora-low" aria-hidden="true"></div>
+			<div class="wrap">
+				<div class="section-head section-head-centre">
+					<p class="overline">Download</p>
+					<h2 id="download-title">Get Trussel</h2>
+					<p>Every change to the IDE is built for each platform and published here.</p>
+				</div>
+				<div class="downloads" data-downloads aria-live="polite" aria-busy="true">
+					<p class="muted loading">Looking for the latest build…</p>
+					<noscript><p><a href="https://github.com/Dhiwakar1997/trussel-ide/releases/latest">Open the latest release on GitHub</a></p></noscript>
+				</div>
+				<div class="first-open">
+					<h3>The first time you open it</h3>
+					<p class="muted">The beta is not signed by Apple or Microsoft yet, so macOS and Windows ask before they run Trussel the first time.</p>
+					<ul class="cards first-open-cards">
+						<li class="card card-mac" id="mac-first-open">
+							<h4>macOS</h4>
+							<p>Trussel is not notarised by Apple yet, so macOS stops it the first time. One command in Terminal lets it open.</p>
+							<!-- The pop-up after a Mac download shows a copy of this block (src/macSteps.ts), so it holds no ids -->
+							<div data-mac-steps>
+								<ol class="mac-steps">
+									<li>
+										<span class="mac-step-num" aria-hidden="true">1</span>
+										<div>
+											<strong>Install</strong>
+											<p>Open the <code>.dmg</code> and drag Trussel to Applications.</p>
+										</div>
+									</li>
+									<li>
+										<span class="mac-step-num" aria-hidden="true">2</span>
+										<div>
+											<strong>Allow it, once</strong>
+											<p>Open Terminal (<kbd>⌘</kbd> <kbd>Space</kbd>, type Terminal) and run:</p>
+											<div class="command">
+												<code data-command>xattr -dr com.apple.quarantine /Applications/Trussel.app</code>
+												<button class="button button-small" type="button" data-copy hidden>Copy</button>
+											</div>
+										</div>
+									</li>
+									<li>
+										<span class="mac-step-num" aria-hidden="true">3</span>
+										<div>
+											<strong>Open Trussel</strong>
+											<p>From Applications or Spotlight. After you install a newer version, run step 2 again.</p>
+										</div>
+									</li>
+								</ol>
+								<p class="mac-note">The command removes the “downloaded from the internet” flag from Trussel only, and changes no setting on your Mac. If you put Trussel somewhere other than Applications, change the path. Rather not use Terminal? Open Trussel, then choose <strong>Open Anyway</strong> in System Settings › Privacy &amp; Security.</p>
+							</div>
+						</li>
+						<li class="card">
+							<h4>Windows</h4>
+							<p>If SmartScreen says it protected your PC, choose <strong>More info</strong>, then <strong>Run anyway</strong>. The installer needs no administrator rights.</p>
+						</li>
+						<li class="card">
+							<h4>Linux</h4>
+							<p><code>sudo apt install ./Trussel-…-linux-x64.deb</code> or <code>sudo dnf install ./Trussel-…-linux-x64.rpm</code>, or unpack the <code>.tar.gz</code> and run <code>trussel</code>.</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</section>
+
+		<section class="faq" aria-labelledby="faq-title">
+			<div class="wrap faq-inner">
+				<h2 id="faq-title">Questions</h2>
+				<details>
+					<summary>Does my code leave my computer?</summary>
+					<p>Analysis runs on your computer, and Trussel sends nothing to a Trussel server. When you ask Eda something, your question and the parts of the graph it needs go to the model you chose. With the model on this computer, nothing leaves it.</p>
+				</details>
+				<details>
+					<summary>Do I need Claude Code or Codex?</summary>
+					<p>No. The graph, the Visualiser page, passes and saved flows work on their own, and Eda works with your own key or a local model. If Claude Code or Codex is installed, Trussel's chat starts it with the MCP server already connected.</p>
+				</details>
+				<details>
+					<summary>Which languages does it read?</summary>
+					<p>Python, Java (Maven and Gradle), TypeScript and JavaScript, including React. Everything each language needs comes with the IDE.</p>
+				</details>
+				<details>
+					<summary>Will my VS Code themes and extensions work?</summary>
+					<p>Trussel is built on VS Code's open source code, so the editor, keyboard shortcuts, settings and colour themes work as you expect, and Trussel's own pages follow your theme. Extensions install from Open VSX.</p>
+				</details>
+				<details>
+					<summary>macOS says it cannot verify Trussel. What do I do?</summary>
+					<p>The beta is not notarised by Apple yet, so macOS cannot check who made it and stops it the first time. Run <code>xattr -dr com.apple.quarantine /Applications/Trussel.app</code> in Terminal once (<a href="#mac-first-open">the three steps</a>), or choose <strong>Open Anyway</strong> in System Settings › Privacy &amp; Security. Each release lists the SHA-256 of every file, so you can check that your download is the one that was built.</p>
+				</details>
+				<details>
+					<summary>How do I get a newer version?</summary>
+					<p>Download it here: each build replaces the last one when you install it. On a Mac, run the Terminal command again after installing it. Updates from inside the IDE come later.</p>
+				</details>
+			</div>
+		</section>
+	</main>
+
+	<footer class="footer">
+		<div class="wrap footer-inner">
+			<span class="brand brand-small"><img src="./favicon.svg" alt="" width="20" height="20"> Trussel</span>
+			<span class="muted">Built on Code - OSS, MIT licensed. © 2026 Trussel</span>
+		</div>
+	</footer>
+
+	<!-- Opened by src/macSteps.ts when a Mac installer is downloaded; it shows a copy of the macOS card's steps -->
+	<dialog class="next-steps" data-mac-dialog aria-labelledby="next-steps-title">
+		<form method="dialog" class="next-steps-close">
+			<button class="close" type="submit" aria-label="Close">×</button>
+		</form>
+		<p class="overline">macOS</p>
+		<h2 id="next-steps-title">Your download has started</h2>
+		<p class="muted">Three steps to open Trussel on your Mac.</p>
+		<div data-mac-steps-slot></div>
+		<form method="dialog" class="next-steps-actions">
+			<button class="button button-primary" type="submit">Got it</button>
+		</form>
+	</dialog>
+
+</body>
+</html>

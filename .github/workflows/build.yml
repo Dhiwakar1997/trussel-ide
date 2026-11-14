@@ -314,10 +314,16 @@ jobs:
             --notes-file notes.md \
             --latest
 
+      # Newest by build number, the number after "beta." in the tag. Not createdAt: GitHub gives a release the date of the
+      # commit its tag points at, every release here points at the same commit, so the new release looked as old as the
+      # rest and was the one deleted (builds 44 to 46, 14 Nov 2026). The release just published is never deleted.
       - name: Keep the ten newest releases
         run: |
-          gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName,createdAt \
-            --jq 'sort_by(.createdAt) | reverse | .[10:] | .[].tagName' |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName \
+            --jq '[.[].tagName | select(test("-beta\\.[0-9]+$"))] | sort_by(capture("-beta\\.(?<n>[0-9]+)$").n | tonumber) | reverse | .[10:] | .[]' |
           while read -r tag; do
+            if [ "$tag" = "v${VERSION}" ]; then
+              continue
+            fi
             gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
           done
